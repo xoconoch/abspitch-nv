@@ -1,0 +1,38 @@
+{
+  "name": "Not My Fucking Tempo",
+  "id": "nmft",
+  "author": "You",
+  "version": "0.1.0",
+  "description": "Replaces Navidrome's similar tracks/artists with NMFT API recommendations.",
+  "config": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "apiUrl": {
+          "type": "string",
+          "title": "NMFT API URL",
+          "description": "Base URL for the Not My Fucking Tempo server.",
+          "default": "http://localhost:8901"
+        }
+      }
+    },
+    "uiSchema": {
+      "type": "VerticalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/apiUrl"
+        }
+      ]
+    }
+  },
+  "permissions": {
+    "config": {
+      "reason": "To read plugin configuration in Navidrome UI"
+    },
+    "http": {
+      "reason": "To call Not My Fucking Tempo API for similar tracks and artists",
+      "requiredHosts": ["*"]
+    }
+  }
+}
