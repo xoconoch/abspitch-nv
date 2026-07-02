@@ -1,7 +1,7 @@
 {
   "name": "Not My Fucking Tempo",
-  "id": "nmft",
-  "author": "You",
+  "id": "nmft-nv",
+  "author": "Xoconoch",
   "version": "0.1.0",
   "description": "Replaces Navidrome's similar tracks/artists with NMFT API recommendations.",
   "config": {
