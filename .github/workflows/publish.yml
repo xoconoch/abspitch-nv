@@ -1,0 +1,37 @@
+name: Build and Upload Plugin
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup TinyGo
+        uses: acifani/setup-tinygo@v2
+        with:
+          tinygo-version: "0.39.0" # Change if your project requires a different version
+
+      - name: Verify Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
+      - name: Build package
+        run: make package
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "*.ndp"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
