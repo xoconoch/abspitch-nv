@@ -13,6 +13,12 @@
           "title": "Absolute Pitch API URL",
           "description": "Base URL for the Absolute Pitch server.",
           "default": "http://localhost:8100"
+        },
+        "similarityThreshold": {
+          "type": "number",
+          "title": "Similarity Threshold",
+          "description": "Excludes recommendations with similarity at or above this threshold, as they are likely duplicate tracks.",
+          "default": 0.98
         }
       }
     },
@@ -22,6 +28,10 @@
         {
           "type": "Control",
           "scope": "#/properties/apiUrl"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/similarityThreshold"
         }
       ]
     }

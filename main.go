@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	"github.com/navidrome/navidrome/plugins/pdk/go/host"
 	"github.com/navidrome/navidrome/plugins/pdk/go/metadata"
@@ -13,6 +14,8 @@ import (
 
 const configAPIUrl = "apiUrl"
 const defaultAPIUrl = "http://localhost:8100"
+const configSimilarityThreshold = "similarityThreshold"
+const defaultSimilarityThreshold = 0.98
 
 // Compile-time check that we implement necessary interfaces
 var _ metadata.SimilarSongsByTrackProvider = (*nmftPlugin)(nil)
@@ -58,6 +61,15 @@ func getConfigString(key, defaultValue string) string {
 	return defaultValue
 }
 
+func getConfigFloat(key string, defaultValue float64) float64 {
+	if value, ok := pdk.GetConfig(key); ok && value != "" {
+		if val, err := strconv.ParseFloat(value, 64); err == nil {
+			return val
+		}
+	}
+	return defaultValue
+}
+
 func apiBase() string {
 	return getConfigString(configAPIUrl, defaultAPIUrl)
 }
@@ -78,7 +90,7 @@ func httpGetJSON(url string, dst any) error {
 	if resp.StatusCode != 200 {
 		errMsg := fmt.Sprintf("[Absolute Pitch] API returned status %d: %s", resp.StatusCode, resp.Body)
 		pdk.Log(pdk.LogError, errMsg)
-		return fmt.Errorf(errMsg)
+		return fmt.Errorf("%s", errMsg)
 	}
 	return json.Unmarshal(resp.Body, dst)
 }
@@ -91,7 +103,10 @@ func (p *nmftPlugin) GetSimilarSongsByTrack(input metadata.SimilarSongsByTrackRe
 	if count <= 0 {
 		count = 20
 	}
-	url := fmt.Sprintf("%s/tracks/%s/neighbors?limit=%d", apiBase(), url.PathEscape(input.ID), count)
+	threshold := getConfigFloat(configSimilarityThreshold, defaultSimilarityThreshold)
+	limit := count + 10
+
+	url := fmt.Sprintf("%s/tracks/%s/neighbors?limit=%d", apiBase(), url.PathEscape(input.ID), limit)
 
 	var apiResp []trackNeighbor
 	if err := httpGetJSON(url, &apiResp); err != nil {
@@ -100,12 +115,19 @@ func (p *nmftPlugin) GetSimilarSongsByTrack(input metadata.SimilarSongsByTrackRe
 
 	songs := make([]metadata.SongRef, 0, len(apiResp))
 	for _, t := range apiResp {
+		similarity := normalizeSimilarity(t.Distance)
+		if similarity >= threshold {
+			continue
+		}
 		songs = append(songs, metadata.SongRef{
 			ID:     t.SubsonicID,
 			Name:   t.Title,
 			Artist: t.ArtistName,
 			Album:  t.AlbumName,
 		})
+		if len(songs) >= count {
+			break
+		}
 	}
 	return &metadata.SimilarSongsResponse{Songs: songs}, nil
 }
@@ -155,8 +177,10 @@ func (p *nmftPlugin) GetSonicSimilarTracks(input sonicsimilarity.GetSonicSimilar
 	if count <= 0 {
 		count = 10
 	}
+	threshold := getConfigFloat(configSimilarityThreshold, defaultSimilarityThreshold)
+	limit := count + 10
 
-	url := fmt.Sprintf("%s/tracks/%s/neighbors?limit=%d", apiBase(), url.PathEscape(input.Song.ID), count)
+	url := fmt.Sprintf("%s/tracks/%s/neighbors?limit=%d", apiBase(), url.PathEscape(input.Song.ID), limit)
 
 	var apiResp []trackNeighbor
 	if err := httpGetJSON(url, &apiResp); err != nil {
@@ -165,6 +189,10 @@ func (p *nmftPlugin) GetSonicSimilarTracks(input sonicsimilarity.GetSonicSimilar
 
 	matches := make([]sonicsimilarity.SonicMatch, 0, len(apiResp))
 	for _, t := range apiResp {
+		similarity := normalizeSimilarity(t.Distance)
+		if similarity >= threshold {
+			continue
+		}
 		matches = append(matches, sonicsimilarity.SonicMatch{
 			Song: metadata.SongRef{
 				ID:     t.SubsonicID,
@@ -172,8 +200,11 @@ func (p *nmftPlugin) GetSonicSimilarTracks(input sonicsimilarity.GetSonicSimilar
 				Artist: t.ArtistName,
 				Album:  t.AlbumName,
 			},
-			Similarity: normalizeSimilarity(t.Distance),
+			Similarity: similarity,
 		})
+		if len(matches) >= count {
+			break
+		}
 	}
 
 	return sonicsimilarity.SonicSimilarityResponse{Matches: matches}, nil
