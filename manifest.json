@@ -1,18 +1,18 @@
 {
-  "name": "Not My Fucking Tempo",
-  "id": "nmft-nv",
+  "name": "Absolute Pitch",
+  "id": "abspitch-nv",
   "author": "Xoconoch",
   "version": "0.1.0",
-  "description": "Replaces Navidrome's similar tracks/artists with NMFT API recommendations.",
+  "description": "Replaces Navidrome's similar tracks/artists with Absolute Pitch API recommendations.",
   "config": {
     "schema": {
       "type": "object",
       "properties": {
         "apiUrl": {
           "type": "string",
-          "title": "NMFT API URL",
-          "description": "Base URL for the Not My Fucking Tempo server.",
-          "default": "http://localhost:8901"
+          "title": "Absolute Pitch API URL",
+          "description": "Base URL for the Absolute Pitch server.",
+          "default": "http://localhost:8100"
         }
       }
     },
@@ -31,7 +31,7 @@
       "reason": "To read plugin configuration in Navidrome UI"
     },
     "http": {
-      "reason": "To call Not My Fucking Tempo API for similar tracks and artists",
+      "reason": "To call Absolute Pitch API for similar tracks and artists",
       "requiredHosts": ["*"]
     }
   }

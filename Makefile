@@ -1,7 +1,7 @@
 .RECIPEPREFIX = >
 
-PLUGIN_NAME := nmft-nv
-PACKAGE_NAME := nmft-nv
+PLUGIN_NAME := abspitch-nv
+PACKAGE_NAME := abspitch-nv
 
 .PHONY: build package clean
 
