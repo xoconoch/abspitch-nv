@@ -106,7 +106,7 @@ func (p *nmftPlugin) GetSimilarSongsByTrack(input metadata.SimilarSongsByTrackRe
 	threshold := getConfigFloat(configSimilarityThreshold, defaultSimilarityThreshold)
 	limit := count + 10
 
-	url := fmt.Sprintf("%s/tracks/%s/neighbors?limit=%d", apiBase(), url.PathEscape(input.ID), limit)
+	url := fmt.Sprintf("%s/tracks/%s/neighbors?limit=%d?deduplicate=true", apiBase(), url.PathEscape(input.ID), limit)
 
 	var apiResp []trackNeighbor
 	if err := httpGetJSON(url, &apiResp); err != nil {
