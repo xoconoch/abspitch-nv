@@ -2,7 +2,7 @@
   "name": "Absolute Pitch",
   "id": "abspitch-nv",
   "author": "Xoconoch",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Replaces Navidrome's similar tracks/artists with Absolute Pitch API recommendations.",
   "config": {
     "schema": {

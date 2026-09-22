@@ -51,7 +51,7 @@ type nmftPlugin struct{}
 func init() {
 	metadata.Register(&nmftPlugin{})
 	sonicsimilarity.Register(&nmftPlugin{})
-	pdk.Log(pdk.LogInfo, "[Absolute Pitch] Plugin registered successfully")
+	pdk.Log(pdk.LogDebug, "[Absolute Pitch] Plugin registered successfully")
 }
 
 func getConfigString(key, defaultValue string) string {
